@@ -1,0 +1,1 @@
+./darknet detector demo yolov3.data yolov3-tiny.cfg yolov3-tiny_7classes_229824.weights -ext_output test_me3.mp4
