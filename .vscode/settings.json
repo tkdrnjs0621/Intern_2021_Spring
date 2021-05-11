@@ -1,0 +1,7 @@
+{
+    "C_Cpp.dimInactiveRegions": false,
+    "files.associations": {
+        "parser.h": "c",
+        "*.tcc": "cpp"
+    }
+}

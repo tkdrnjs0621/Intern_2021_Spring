@@ -13,14 +13,6 @@
 #include <algorithm>
 #include <atomic>
 
-//include for bluetooth 
-#include <unistd.h>
-#include <sys/socket.h>
-#include <bluetooth/bluetooth.h>
-#include <bluetooth/hci.h>
-#include <bluetooth/hci_lib.h>
-#include <bluetooth/rfcomm.h>
-
 #include <opencv2/core/version.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -1033,56 +1025,16 @@ extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, flo
                 // cv::FONT_HERSHEY_COMPLEX_SMALL, cv::FONT_HERSHEY_SIMPLEX
             }
         }
-        struct sockaddr_rc addr = { 0 };
-        int s, status;
-        char dest[18] = "01:23:45:67:89:AB";
-
-        // allocate a socket
-        s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-
-        // set the connection parameters (who to connect to)
-        addr.rc_family = AF_BLUETOOTH;
-        addr.rc_channel = (uint8_t) 1;
-        str2ba( dest, &addr.rc_bdaddr );
-
-        // connect to server
-        status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
-
-        
-
-
 	    if (ext_output)
 	    {
 		if(ifready && ifindex)
 		{
 			printf("\t(ready) index location : (%4.0f, %4.0f)\n",x,y);
-            // send a message
-            if( status == 0 ) {
-                status = write(s, "hello!", 6);
-            }
 		}
-		else if(ifclick && ifindex)
+		if(ifclick && ifindex)
 		{
 			printf("\t(click) index location : (%4.0f, %4.0f)\n",x,y);
-            // send a message
-            if( status == 0 ) {
-                status = write(s, "hello!", 6);
-            }
 		}
-        else
-        {
-            // send a message
-            if( status == 0 ) {
-                status = write(s, "hello!", 6);
-            }
-        }
-
-
-        if( status < 0 ) perror("uh oh");
-
-        close(s);
-
-
 	    }
         if (ext_output) {
             fflush(stdout);
