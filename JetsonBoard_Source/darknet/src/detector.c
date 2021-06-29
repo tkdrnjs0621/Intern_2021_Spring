@@ -27,6 +27,17 @@ typedef __compar_fn_t comparison_fn_t;
 #endif
 
 #include "http_stream.h"
+////
+
+struct sockaddr_rc addr = { 0 };
+        int s, status;
+        char dest[18] = "A8:2B:B9:97:C3:8D";
+
+///
+
+
+
+
 
 int check_mistakes = 0;
 
@@ -1952,45 +1963,112 @@ void draw_object(char *datacfg, char *cfgfile, char *weightfile, char *filename,
 void run_detector(int argc, char **argv)
 {
     int bluetooth_use = 1;
-    char* bluetooth_device_name = "";
     // start of bluetooth code
     //
     if(bluetooth_use)
     {
-        inquiry_info *ii = NULL;
-        int max_rsp, num_rsp;
-        int dev_id, sock, len, flags;
-        int i;
-        char addr[19] = { 0 };
-        char name[248] = { 0 };
+        // printf("==================BT===============\n");
 
-        dev_id = hci_get_route(NULL);
-        sock = hci_open_dev( dev_id );
-        if (dev_id < 0 || sock < 0) {
-            perror("opening socket");
-            exit(1);
+        // FILE *fp;
+        // char file_buff[100];
+        // char f_devicename[100]="";
+        // fp = fopen("bluetoothdevice.txt","r");
+        // if(fp==NULL)
+        // {
+        //     printf("ERROR : NO bluetoothdevice.txt");
+        // }
+        // else
+        // {
+        //     while(fgets(file_buff,sizeof(file_buff),fp)!=NULL)
+        //     {
+        //         strcpy(f_devicename,file_buff);
+        //         printf("Device to Connect : %s\n",f_devicename);
+        //         break;
+        //     }
+        //     fclose(fp);
+        // }
+
+        // inquiry_info *ii = NULL;
+        // int max_rsp, num_rsp;
+        // int dev_id, sock, len, flags;
+        // int i;
+        // char addr2[19] = { 0 };
+        // char name[248] = { 0 };
+
+        // dev_id = hci_get_route(NULL);
+        // sock = hci_open_dev( dev_id );
+        // if (dev_id < 0 || sock < 0) {
+        //     perror("opening socket");
+        //     exit(1);
+        // }
+
+        // len  = 8;
+        // max_rsp = 255;
+        // flags = IREQ_CACHE_FLUSH;
+        // ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
+
+        // num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
+        // if( num_rsp < 0 ) perror("hci_inquiry");
+        // int devicefound = 0;
+        // printf("list of connected devices:\n");
+        // for (i = 0; i < num_rsp; i++) {
+        //     ba2str(&(ii+i)->bdaddr, addr2);
+        //     memset(name, 0, sizeof(name));
+        //     if (hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name), 
+        //         name, 0) < 0)
+        //     strcpy(name, "[unknown]");
+        //     printf("%s  %s\n", addr2, name);
+        //     if(strstr(f_devicename, name)!=NULL)
+        //     {
+        //         devicefound=1;
+        //         break;
+        //     }
+        // }
+
+        // if(devicefound)
+        // {
+        //     printf("%s confirmed for bluetooth connection! address : %s\n", name,addr2);
+        // }
+        // else
+        // {
+        //     printf("%s not found\n", f_devicename);
+        // }
+
+        // free( ii );
+        // close( sock );
+        // printf("==================End of BTSEARCH===============\n");
+
+        
+        FILE *fp2;
+        char file_buff2[100];
+        int chan = -1;
+        fp2 = fopen("channel.txt","r");
+        if(fp2==NULL)
+        {
+            printf("ERROR : NO channel.txt");
         }
-
-        len  = 8;
-        max_rsp = 255;
-        flags = IREQ_CACHE_FLUSH;
-        ii = (inquiry_info*)malloc(max_rsp * sizeof(inquiry_info));
-
-        num_rsp = hci_inquiry(dev_id, len, max_rsp, NULL, &ii, flags);
-        if( num_rsp < 0 ) perror("hci_inquiry");
-
-        for (i = 0; i < num_rsp; i++) {
-            ba2str(&(ii+i)->bdaddr, addr);
-            memset(name, 0, sizeof(name));
-            if (hci_read_remote_name(sock, &(ii+i)->bdaddr, sizeof(name), 
-                name, 0) < 0)
-            strcpy(name, "[unknown]");
-            printf("%s  %s\n", addr, name);
+        else
+        {
+            while(fgets(file_buff2,sizeof(file_buff2),fp2)!=NULL)
+            {
+                chan = atoi(file_buff2);
+            }
+            fclose(fp2);
         }
+        printf("selected channel : %d\n", chan);
+        // allocate a socket
+        s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+        printf("socket : %d\n",s);
 
-        free( ii );
-        close( sock );
+        // set the connection parameters (who to connect to)
+        addr.rc_family = AF_BLUETOOTH;
+        addr.rc_channel = (uint8_t) chan;
+        str2ba( dest, &addr.rc_bdaddr );
 
+        // connect to server
+        status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+        printf("status : %d\n",status);
+        
     }
     // end of bluetooth code
 
@@ -2085,7 +2163,7 @@ void run_detector(int argc, char **argv)
             if (strlen(filename) > 0)
                 if (filename[strlen(filename) - 1] == 0x0d) filename[strlen(filename) - 1] = 0;
         demo(cfg, weights, thresh, hier_thresh, cam_index, filename, names, classes, avgframes, frame_skip, prefix, out_filename,
-            mjpeg_port, dontdraw_bbox, json_port, dont_show, ext_output, letter_box, time_limit_sec, http_post_host, benchmark, benchmark_layers);
+            mjpeg_port, dontdraw_bbox, json_port, dont_show, ext_output, letter_box, time_limit_sec, http_post_host, benchmark, benchmark_layers, s, status);
 
         free_list_contents_kvp(options);
         free_list(options);

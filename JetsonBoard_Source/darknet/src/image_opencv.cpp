@@ -21,6 +21,7 @@
 #include <bluetooth/hci_lib.h>
 #include <bluetooth/rfcomm.h>
 
+
 #include <opencv2/core/version.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -885,7 +886,9 @@ extern "C" void save_cv_jpg(mat_cv *img_src, const char *name)
 // ====================================================================
 
 
-extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output)
+extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output
+
+,int s, int status)
 {
     try {
         cv::Mat *show_img = (cv::Mat*)mat;
@@ -1008,79 +1011,90 @@ extern "C" void draw_detections_cv_v3(mat_cv* mat, detection *dets, int num, flo
                 //cvSetImageROI(copy_img, rect);
                 //cvSaveImage(image_name, copy_img, 0);
                 //cvResetImageROI(copy_img);
-		if(strcmp(names[class_id], "index")==0/* && prob>0.7*/){
-			ifindex = true;
-			x = (float)left+b.w*show_img->cols/2;
-			y = (float)top;
-		}
-		if(strcmp(names[class_id], "ready")==0/* && prob>0.7*/){
-			ifready = true;
-		}
-		if(strcmp(names[class_id], "click")==0 /* && prob>0.7*/){
-			ifclick = true;
-		}
-                cv::rectangle(*show_img, pt1, pt2, color, width, 8, 0);
-                //if (ext_output)
-                    /*printf("\t(left_x: %4.0f   top_y: %4.0f   width: %4.0f   height: %4.0f)\n",
-                    (float)left, (float)top, b.w*show_img->cols, b.h*show_img->rows);*/
-                //else
-                    printf("\n");
+                if(strcmp(names[class_id], "index")==0/* && prob>0.7*/){
+                    ifindex = true;
+                    x = (float)left+b.w*show_img->cols/2;
+                    y = (float)top;
+                }
+                if(strcmp(names[class_id], "ready")==0/* && prob>0.7*/){
+                    ifready = true;
+                }
+                if(strcmp(names[class_id], "click")==0 /* && prob>0.7*/){
+                    ifclick = true;
+                }
+                        cv::rectangle(*show_img, pt1, pt2, color, width, 8, 0);
+                        //if (ext_output)
+                            /*printf("\t(left_x: %4.0f   top_y: %4.0f   width: %4.0f   height: %4.0f)\n",
+                            (float)left, (float)top, b.w*show_img->cols, b.h*show_img->rows);*/
+                        //else
+                            printf("\n");
 
-                cv::rectangle(*show_img, pt_text_bg1, pt_text_bg2, color, width, 8, 0);
-                cv::rectangle(*show_img, pt_text_bg1, pt_text_bg2, color, CV_FILLED, 8, 0);    // filled
-                cv::Scalar black_color = CV_RGB(0, 0, 0);
-                cv::putText(*show_img, labelstr, pt_text, cv::FONT_HERSHEY_COMPLEX_SMALL, font_size, black_color, 2 * font_size, CV_AA);
-                // cv::FONT_HERSHEY_COMPLEX_SMALL, cv::FONT_HERSHEY_SIMPLEX
-            }
-        }
-        struct sockaddr_rc addr = { 0 };
-        int s, status;
-        char dest[18] = "01:23:45:67:89:AB";
-
-        // allocate a socket
-        s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-
-        // set the connection parameters (who to connect to)
-        addr.rc_family = AF_BLUETOOTH;
-        addr.rc_channel = (uint8_t) 1;
-        str2ba( dest, &addr.rc_bdaddr );
-
-        // connect to server
-        status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
-
-        
+                        cv::rectangle(*show_img, pt_text_bg1, pt_text_bg2, color, width, 8, 0);
+                        cv::rectangle(*show_img, pt_text_bg1, pt_text_bg2, color, CV_FILLED, 8, 0);    // filled
+                        cv::Scalar black_color = CV_RGB(0, 0, 0);
+                        cv::putText(*show_img, labelstr, pt_text, cv::FONT_HERSHEY_COMPLEX_SMALL, font_size, black_color, 2 * font_size, CV_AA);
+                        // cv::FONT_HERSHEY_COMPLEX_SMALL, cv::FONT_HERSHEY_SIMPLEX
+                    }
+                }
 
 
-	    if (ext_output)
-	    {
-		if(ifready && ifindex)
-		{
-			printf("\t(ready) index location : (%4.0f, %4.0f)\n",x,y);
-            // send a message
-            if( status == 0 ) {
-                status = write(s, "hello!", 6);
-            }
-		}
-		else if(ifclick && ifindex)
-		{
-			printf("\t(click) index location : (%4.0f, %4.0f)\n",x,y);
-            // send a message
-            if( status == 0 ) {
-                status = write(s, "hello!", 6);
-            }
-		}
-        else
-        {
-            // send a message
-            if( status == 0 ) {
-                status = write(s, "hello!", 6);
-            }
-        }
+                // struct sockaddr_rc addr = { 0 };
+                // int s, status;
+                // char dest[18] = "A8:2B:B9:97:C3:8D";
+
+                // // allocate a socket
+                // s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+                // printf("socket : %d\n",s);
+
+                // // set the connection parameters (who to connect to)
+                // addr.rc_family = AF_BLUETOOTH;
+                // addr.rc_channel = (uint8_t) 6;
+                // str2ba( dest, &addr.rc_bdaddr );
+
+                // // connect to server
+                // status = connect(s, (struct sockaddr *)&addr, sizeof(addr));
+                // printf("status : %d\n",status);
+                
+                char log[200];
+
+                if (ext_output)
+                {
+                if(ifready && ifindex)
+                {
+                    printf("\t(ready) index location : (%d, %d)\n",(int)x,(int)y);
+                    
+                    sprintf(log,"1 %d %d",(int)x,(int)y);
+                    // send a message
+                    if( status == 0 ) {
+                        printf("\tlogged as %s\n",log);
+                        status = write(s, log, strlen(log)+1);
+                    }
+                }
+                else if(ifclick && ifindex)
+                {
+                    printf("\t(click) index location : (%d, %d)\n",(int)x,(int)y);
+                    sprintf(log,"2 %d %d",(int)x,(int)y);
+                    // send a message
+                    if( status == 0 ) {
+                        printf("\tlogged as %s\n",log);
+                        status = write(s, log, strlen(log)+1);
+                    }
+                }
+                else
+                {
+                    printf("\tnothing detected\n");
+                    sprintf(log,"0 0 0");
+                    // send a message
+                    if( status == 0 ) {
+                        printf("\tlogged as %s\n",log);
+                        status = write(s, log, strlen(log)+1);
+                    }
+                }
 
 
-        if( status < 0 ) perror("uh oh");
+                if( status < 0 ) perror("error, status <0 : ");
 
-        close(s);
+                //close(s);
 
 
 	    }

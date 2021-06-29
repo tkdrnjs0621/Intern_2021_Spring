@@ -113,6 +113,8 @@ ifeq ($(OPENMP), 1)
 LDFLAGS+= -lgomp
 endif
 
+
+LDFLAGS+= -lbluetooth
 ifeq ($(GPU), 1)
 COMMON+= -DGPU -I/usr/local/cuda/include/
 CFLAGS+= -DGPU
